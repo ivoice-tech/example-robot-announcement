@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>playback-robot-parent</artifactId>
+        <groupId>org.example</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>robot-sip</artifactId>
+
+    <properties>
+        <ivoice.robot.sip.version>0.0.1-SNAPSHOT</ivoice.robot.sip.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>tech.ivoice.sip</groupId>
+            <artifactId>robot-sip-ua</artifactId>
+            <version>${ivoice.robot.sip.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/jain/jain-mgcp-ri -->
+<!--        <dependency>-->
+<!--            <groupId>jain</groupId>-->
+<!--            <artifactId>jain-mgcp-ri</artifactId>-->
+<!--            <version>${jain.mgcp.version}</version>-->
+<!--        </dependency>-->
+
+
+        <!-- logging -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+    </dependencies>
+
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>jboss</id>-->
+<!--            <name>jboss</name>-->
+<!--            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--                <updatePolicy>never</updatePolicy>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--                <updatePolicy>never</updatePolicy>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
+
+</project>
