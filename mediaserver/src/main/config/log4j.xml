@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+	<Appenders>
+		<!-- Async Loggers will auto-flush in batches, so switch off immediateFlush. -->
+		<RollingFile name="RollingFile" fileName="mms.log"
+					 filePattern="mms-%d{yyyy-MM-dd}-%i.log"
+					 immediateFlush="false" append="true">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        	<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            	<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info" includeLocation="false">
+			<AppenderRef ref="RollingFile"/>
+		</Root>
+	</Loggers>
+</Configuration>
+
