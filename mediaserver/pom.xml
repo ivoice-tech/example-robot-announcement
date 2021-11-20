@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>playback-robot-parent</artifactId>
-        <groupId>org.example</groupId>
+        <groupId>tech.ivoice</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -12,203 +12,15 @@
     <artifactId>mediaserver</artifactId>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <media.core.version>5.0.0-SNAPSHOT</media.core.version>
-        <version.jboss.microcontainer>2.2.0.M2</version.jboss.microcontainer>
     </properties>
 
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.9.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <!-- Modules -->
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>spi</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>core</artifactId>
-            <version>${media.core.version}</version>
-            <type>jar</type>
-        </dependency>
         <dependency>
             <groupId>org.mobicents.media.io</groupId>
             <artifactId>rtp</artifactId>
             <version>${media.core.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.io</groupId>
-            <artifactId>ss7</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>player</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.controls</groupId>
-            <artifactId>mgcp</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-
-        <!-- codecs -->
-        <dependency>
-            <groupId>org.mobicents.media.codecs</groupId>
-            <artifactId>g711</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.codecs</groupId>
-            <artifactId>ilbc</artifactId>
-            <version>${media.core.version}</version>
-        </dependency>
-
-        <!-- External Dependencies -->
-        <dependency>
-            <groupId>urbanophile</groupId>
-            <artifactId>java-getopt</artifactId>
-            <version>1.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-dependency</artifactId>
-            <version>2.0.6.GA</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-kernel</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aop</groupId>
-            <artifactId>jboss-aop</artifactId>
-            <version>2.2.2.GA</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-aop-mc-int</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-        </dependency>
-
-        <!-- Apache Commons Configuration -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-configuration2</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
-    <!--  -->
-    <build>
-        <finalName>run</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/descriptor.xml</descriptor>
-                    </descriptors>
-                    <finalName>restcomm</finalName>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <!--suppress MavenModelInspection -->
-                            <goal>directory-inline</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <repositories>
-        <repository>
-            <id>mobicents-public-repository-group</id>
-            <name>Mobicens Public Maven Repository Group</name>
-            <url>https://oss.sonatype.org/content/groups/public</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-
-        <repository>
-            <id>jboss-deprecated</id>
-            <name>jboss-deprecated</name>
-            <url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
