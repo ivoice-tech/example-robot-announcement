@@ -12,8 +12,6 @@ public class Robot extends AbstractSipUserAgent<Void> {
         vertx.deployVerticleAndForget(new Robot(config));
     }
 
-    private final String user = "Robot";
-
     public Robot(SipVerticleConfig config) {
         super(config);
     }
