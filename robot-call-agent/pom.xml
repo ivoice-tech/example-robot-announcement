@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>playback-robot-parent</artifactId>
-        <groupId>org.example</groupId>
+        <groupId>tech.ivoice</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -23,14 +23,6 @@
             <version>${ivoice.robot.sip.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/jain/jain-mgcp-ri -->
-<!--        <dependency>-->
-<!--            <groupId>jain</groupId>-->
-<!--            <artifactId>jain-mgcp-ri</artifactId>-->
-<!--            <version>${jain.mgcp.version}</version>-->
-<!--        </dependency>-->
-
-
         <!-- logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -43,22 +35,5 @@
             <version>${log4j.version}</version>
         </dependency>
     </dependencies>
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>jboss</id>-->
-<!--            <name>jboss</name>-->
-<!--            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>-->
-<!--            <layout>default</layout>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--                <updatePolicy>never</updatePolicy>-->
-<!--            </releases>-->
-<!--            <snapshots>-->
-<!--                <enabled>true</enabled>-->
-<!--                <updatePolicy>never</updatePolicy>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
-<!--    </repositories>-->
 
 </project>
