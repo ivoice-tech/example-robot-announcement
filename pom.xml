@@ -8,6 +8,21 @@
     <artifactId>playback-robot-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
+
+    <developers>
+        <developer>
+            <id>achernetsov</id>
+            <name>Artyom Chernetsov</name>
+            <url>archertech.ru</url>
+            <organization>Ivoice Technology</organization>
+            <organizationUrl>https://ivoice.tech/</organizationUrl>
+            <roles>
+                <role>author</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <modules>
         <module>robot-call-agent</module>
         <module>mediaserver</module>
