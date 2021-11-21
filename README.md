@@ -4,7 +4,17 @@ Example implementation of [Ivoice robot-sip-server](https://github.com/ivoice-te
 
 Robot accepting incoming call and saying phrase.
 
-How to use:
+## How to build
+
+The challenge is to build [Restcomm media-core Spinoco fork (active)](https://github.com/Spinoco/mediaserver) libs for
+mediaserver. You need to install (mvn install) modules locally:
+
+- org.mobicents.media.io:rtp
+- org.mobicents.media.resources:player
+
+We'll write instructions or include libs in nearest future :)
+
+## How to use
 
 1. Run tech.ivoice.sip.Robot from IDE
 2. Call from softphone on "robot@127.0.0.1:5081" - you'll hear audio notification in softphone.
