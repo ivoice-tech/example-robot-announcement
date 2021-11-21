@@ -1,6 +1,15 @@
 # Overview
 
+Example implementation of [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-sip-server) with media.
+
 Robot accepting incoming call and saying phrase.
+
+How to use:
+
+1. Run tech.ivoice.sip.Robot from IDE
+2. Call from softphone on "robot@127.0.0.1:5081" - you'll hear audio notification in softphone.
+
+# Implementation
 
 This project contains 2 modules:
 
@@ -10,27 +19,20 @@ Implemented on [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-si
 
 Call agent is term from MGCP protocol - call control "intelligence", it commands media gateway (mediaserver).
 
-- accept SIP call form human SIP UA (user agent): for example softphone
-- establish media session with mediaserver via the MGCP protocol
-- command mediaserver to play notification
+Robot functions:
 
-2. Mediaserver (or media gateway in MGCP terms)
+- accepts SIP call
+- commands mediaserver to play notification
 
-Provides announcement endpoint, see [spec >>](https://datatracker.ietf.org/doc/html/rfc3435#section-2.1.1.3)
+2. Mediaserver
 
-Implementation copied from Spinoco mediaserver repository (bootstrap module).
+Low-level mediaserver on Restcomm mediaserver components:
 
-- execute commands from robot call agent via the MGCP protocol
-- plays audio notification
-
-# How to run demo
-
-1. Run mediaserver (TODO instructions)
+- waits for Robot command with audio URL
+- plays audio in RTP channel
 
 # References
 
 - [MGCP wikipedia](https://en.wikipedia.org/wiki/Media_Gateway_Control_Protocol)
-- [MGCP specification - RFC 3435](https://datatracker.ietf.org/doc/html/rfc3435)
-- [JSR 309](https://jcp.org/en/jsr/detail?id=309)
 - [Restcomm media-core Spinoco fork (active)](https://github.com/Spinoco/mediaserver)
 - [media-core examples](https://github.com/achernetsov/media-core-examples)
