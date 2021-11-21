@@ -7,8 +7,8 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.eventbus.Message;
-import tech.ivoice.media.CreateMediaSession;
 import tech.ivoice.media.Mediaserver;
+import tech.ivoice.media.cmd.CreateMediaSession;
 import tech.ivoice.sip.vertx.AbstractSipUserAgent;
 import tech.ivoice.sip.vertx.SipVerticleConfig;
 
@@ -19,7 +19,6 @@ import java.util.List;
  * Listens for incoming call on: robot@127.0.0.1:5081
  */
 public class Robot extends AbstractSipUserAgent<Void> {
-    private static final int MS_RTP_PORT = 8001;
 
     public static void main(String[] args) {
         var vertx = Vertx.vertx();
@@ -48,22 +47,29 @@ public class Robot extends AbstractSipUserAgent<Void> {
 
         try {
             CreateMediaSession createMediaSession = new CreateMediaSession(invite.getMessageContent());
-            Uni<Message<CreateMediaSession.Result>> request = vertx.eventBus()
-                    .request(Mediaserver.CREATE_MEDIA_SESSION_EVENT_ADDRESS, Json.encode(createMediaSession));
+            Uni<Message<String>> request = vertx.eventBus()
+                    .request(Mediaserver.CREATE_MEDIA_SESSION_CMD_ADDRESS, Json.encode(createMediaSession));
             request.subscribe()
                     .with(reply -> {
-                        log.info(reply.body());
+                        CreateMediaSession.Result result = Json.decodeValue(reply.body(),
+                                CreateMediaSession.Result.class);
+                        if (!result.isSuccess()) {
+                            log.error(result.getError());
+                            throw new IllegalStateException(result.getError());
+                        }
+                        log.info(result);
+
+                        List<String> sdpAttributes = List.of(
+                                "a=rtpmap:8 PCMA/8000",
+                                "a=ptime:20"
+                        );
+                        SIPResponse ok = createOkWithSdp(callId, result.getRtpPort(), sdpAttributes);
+                        sendResponse(ok);
+
                     });
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
-
-        List<String> sdpAttributes = List.of(
-                "a=rtpmap:8 PCMA/8000",
-                "a=ptime:20"
-        );
-        SIPResponse ok = createOkWithSdp(callId, MS_RTP_PORT, sdpAttributes);
-        sendResponse(ok);
     }
 
     @Override

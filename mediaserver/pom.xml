@@ -40,6 +40,11 @@
             <artifactId>rtp</artifactId>
             <version>${media.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mobicents.media.resources</groupId>
+            <artifactId>player</artifactId>
+            <version>${media.core.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

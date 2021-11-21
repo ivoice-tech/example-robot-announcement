@@ -1,10 +1,14 @@
-package tech.ivoice.media;
+package tech.ivoice.media.cmd;
 
 import io.vertx.codegen.annotations.DataObject;
 
 @DataObject
 public class CreateMediaSession {
-    private final String sdp;
+    private String sdp;
+
+    // for jackson
+    private CreateMediaSession() {
+    }
 
     public CreateMediaSession(String sdp) {
         this.sdp = sdp;
@@ -23,24 +27,34 @@ public class CreateMediaSession {
 
     @DataObject
     public static class Result {
-        private final boolean success;
-        private final String error;
+        private boolean success;
+        private int rtpPort;
+        private String error;
 
-        public static Result success() {
-            return new Result(true, null);
+        // for jackson
+        private Result() {
+        }
+
+        public static Result success(int rtpPort) {
+            return new Result(true, rtpPort, null);
         }
 
         public static Result failure(String error) {
-            return new Result(false, error);
+            return new Result(false, -1, error);
         }
 
-        private Result(boolean success, String error) {
+        private Result(boolean success, int rtpPort, String error) {
             this.success = success;
+            this.rtpPort = rtpPort;
             this.error = error;
         }
 
         public boolean isSuccess() {
             return success;
+        }
+
+        public int getRtpPort() {
+            return rtpPort;
         }
 
         public String getError() {
@@ -51,6 +65,7 @@ public class CreateMediaSession {
         public String toString() {
             return "Result{" +
                     "success=" + success +
+                    ", rtpPort=" + rtpPort +
                     ", error='" + error + '\'' +
                     '}';
         }

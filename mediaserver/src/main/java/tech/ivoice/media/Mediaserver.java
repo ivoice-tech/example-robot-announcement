@@ -8,8 +8,7 @@ import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.Sine;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -21,39 +20,23 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
+import tech.ivoice.media.cmd.CreateMediaSession;
 
 import java.net.InetSocketAddress;
+import java.util.regex.Pattern;
 
 /**
  * Run as worker verticle.
  */
+// TODO terminate mediasession
+// TODO implement proper blocking code execution
 public class Mediaserver extends AbstractVerticle {
-    public static final String CREATE_MEDIA_SESSION_EVENT_ADDRESS = "ms.create";
+    public static final String CREATE_MEDIA_SESSION_CMD_ADDRESS = "ms.create";
+    private static final Pattern SDP_HOST_PATTERN = Pattern.compile("o=.*IP4 (.*)");
+    private static final Pattern SDP_PORT_PATTERN = Pattern.compile("m=audio (\\d+)");
 
-    private Clock clock;
-    private PriorityQueueScheduler mediaScheduler;
-    private Scheduler scheduler;
-
-    private ChannelsManager channelsManager;
-    private UdpManager udpManager;
-
-    private SpectraAnalyzer analyzer1, analyzer2;
-    private Sine source1, source2;
-
-    private RtpChannel channel1, channel2;
-    private RtpClock rtpClock1, rtpClock2;
-    private RtpClock oobClock1, oobClock2;
-    private RtpStatistics statistics1, statistics2;
-
-    private int fcount;
-
-    private DspFactoryImpl dspFactory = new DspFactoryImpl();
-
-    private Dsp dsp11, dsp12;
-    private Dsp dsp21, dsp22;
-
-    private AudioMixer audioMixer1, audioMixer2;
-    private AudioComponent component1, component2;
+    private final Scheduler scheduler;
+    private final DspFactoryImpl dspFactory = new DspFactoryImpl();
 
     public Mediaserver() {
         scheduler = new ServiceScheduler();
@@ -63,31 +46,28 @@ public class Mediaserver extends AbstractVerticle {
     public Uni<Void> asyncStart() {
         return Uni.createFrom().voidItem()
                 .invoke(init -> {
-                            MessageConsumer<CreateMediaSession> consumer = vertx.eventBus()
-                                    .consumer(CREATE_MEDIA_SESSION_EVENT_ADDRESS);
+                            MessageConsumer<String> consumer = vertx.eventBus()
+                                    .consumer(CREATE_MEDIA_SESSION_CMD_ADDRESS);
                             consumer.handler(msg -> {
-//                                System.out.println(msg.body());
-                                setUp(8001, 8000);
-//                                connect();
+                                CreateMediaSession request = Json.decodeValue(msg.body(), CreateMediaSession.class);
+                                String sdp = request.getSdp();
+                                String host = SDP_HOST_PATTERN.matcher(sdp)
+                                        .results().findFirst().orElseThrow().group(1);
+                                int port = Integer.parseInt(SDP_PORT_PATTERN.matcher(sdp)
+                                        .results().findFirst().orElseThrow().group(1));
+                                int localRtpPort = createMediaSession(host, port);
 
-                                CreateMediaSession.Result result = CreateMediaSession.Result.success();
+                                CreateMediaSession.Result result = CreateMediaSession.Result.success(localRtpPort);
                                 msg.reply(Json.encode(result));
                             });
                         }
                 );
     }
 
-    private void connect() {
-        source1.activate();
-        analyzer1.activate();
-        audioMixer1.start();
-
-        source2.start();
-        analyzer2.activate();
-        audioMixer2.start();
-    }
-
-    public void setUp(int localRtpPort, int remoteRtpPort) {
+    /**
+     * @return local rtp port
+     */
+    public int createMediaSession(String remoteHost, int remoteRtpPort) {
         try {
             AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
             Formats fmts = new Formats();
@@ -99,101 +79,60 @@ public class Mediaserver extends AbstractVerticle {
             dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
             dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-            dsp11 = dspFactory.newProcessor();
-            dsp12 = dspFactory.newProcessor();
-
-            dsp21 = dspFactory.newProcessor();
-            dsp22 = dspFactory.newProcessor();
+            Dsp dsp11 = dspFactory.newProcessor();
+            Dsp dsp12 = dspFactory.newProcessor();
 
             //use default clock
-            clock = new WallClock();
-            rtpClock1 = new RtpClock(clock);
-            rtpClock2 = new RtpClock(clock);
-            oobClock1 = new RtpClock(clock);
-            oobClock2 = new RtpClock(clock);
+            Clock clock = new WallClock();
+            RtpClock rtpClock = new RtpClock(clock);
+            RtpClock oobClock = new RtpClock(clock);
 
             //create single thread scheduler
-            mediaScheduler = new PriorityQueueScheduler();
+            PriorityQueueScheduler mediaScheduler = new PriorityQueueScheduler();
             mediaScheduler.setClock(clock);
             mediaScheduler.start();
 
-            udpManager = new UdpManager(scheduler);
+            UdpManager udpManager = new UdpManager(scheduler);
             scheduler.start();
             udpManager.start();
 
-            channelsManager = new ChannelsManager(udpManager);
+            ChannelsManager channelsManager = new ChannelsManager(udpManager);
             channelsManager.setScheduler(mediaScheduler);
 
-            source1 = new Sine(mediaScheduler);
-            source1.setFrequency(200);
+            // Can generate audio using org.mobicents.media.server.component.audio..Sine, instead of playing URL
+//            Sine audioProducer = new Sine(mediaScheduler);
+//            audioProducer.setFrequency(100);
+            AudioPlayerImpl audioProducer = new AudioPlayerImpl("player", mediaScheduler);
+            audioProducer.setURL("http://audios.ivoice.online/tests/goodbye.wav");
 
-            source2 = new Sine(mediaScheduler);
-            source2.setFrequency(100);
+            RtpStatistics statistics = new RtpStatistics(rtpClock);
 
-            analyzer1 = new SpectraAnalyzer("analyzer", mediaScheduler);
-            analyzer2 = new SpectraAnalyzer("analyzer", mediaScheduler);
+            RtpChannel remoteChannel = channelsManager.getRtpChannel(statistics, rtpClock, oobClock, null);
+            remoteChannel.updateMode(ConnectionMode.SEND_RECV);
+            remoteChannel.setOutputDsp(dsp11);
+            remoteChannel.setOutputFormats(fmts);
+            remoteChannel.setInputDsp(dsp12);
 
-            this.statistics1 = new RtpStatistics(rtpClock1);
-            this.statistics2 = new RtpStatistics(rtpClock2);
+            remoteChannel.bind(false, false);
+            remoteChannel.setRemotePeer(new InetSocketAddress(remoteHost, remoteRtpPort));
+            remoteChannel.setFormatMap(AVProfile.audio);
 
-            channel1 = channelsManager.getRtpChannel(statistics1, rtpClock1, oobClock1, null);
-            channel1.updateMode(ConnectionMode.SEND_RECV);
-            channel1.setOutputDsp(dsp11);
-            channel1.setOutputFormats(fmts);
-            channel1.setInputDsp(dsp12);
+            AudioMixer audioMixer = new AudioMixer(mediaScheduler);
 
-            channel2 = channelsManager.getRtpChannel(statistics2, rtpClock2, oobClock2, null);
-            channel2.updateMode(ConnectionMode.SEND_RECV);
-            channel2.setOutputDsp(dsp21);
-            channel2.setOutputFormats(fmts);
-            channel2.setInputDsp(dsp22);
+            AudioComponent audioComponent = new AudioComponent(1);
+            audioComponent.addInput(audioProducer.getAudioInput());
+            audioComponent.updateMode(true, true);
 
-            channel1.bind(false, false);
-            channel2.bind(false, false);
+            audioMixer.addComponent(audioComponent);
+            audioMixer.addComponent(remoteChannel.getAudioComponent());
 
-            // channel 1 is local
-            channel1.setRemotePeer(new InetSocketAddress("127.0.0.1", remoteRtpPort));
-            channel2.setRemotePeer(new InetSocketAddress("127.0.0.1", localRtpPort));
+            audioProducer.activate();
+            audioMixer.start();
 
-            channel1.setFormatMap(AVProfile.audio);
-            channel2.setFormatMap(AVProfile.audio);
-
-            audioMixer1 = new AudioMixer(mediaScheduler);
-            audioMixer2 = new AudioMixer(mediaScheduler);
-
-            component1 = new AudioComponent(1);
-            component1.addInput(source1.getAudioInput());
-            component1.addOutput(analyzer1.getAudioOutput());
-            component1.updateMode(true, true);
-
-            audioMixer1.addComponent(component1);
-            audioMixer1.addComponent(channel1.getAudioComponent());
-
-            component2 = new AudioComponent(2);
-            component2.addInput(source2.getAudioInput());
-            component2.addOutput(analyzer2.getAudioOutput());
-            component2.updateMode(true, true);
-
-            audioMixer2.addComponent(component2);
-            audioMixer2.addComponent(channel2.getAudioComponent());
-
-            source1.activate();
-            analyzer1.activate();
-            audioMixer1.start();
-
-            source2.start();
-            analyzer2.activate();
-            audioMixer2.start();
-
+            // TODO get proper rtp port for local media session
+            return udpManager.getPortManager().current();
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    /**
-     * see org.mobicents.media.server.mgcp.tx.cmd.CreateConnectionCmd
-     */
-    public void createConnection(String sdp) {
-
     }
 }
