@@ -3,25 +3,32 @@ package tech.ivoice.media.cmd;
 import io.vertx.codegen.annotations.DataObject;
 
 @DataObject
-public class CreateMediaSession {
+public class PlayAudio {
     private String sdp;
+    private String audioUrl;
 
     // for jackson
-    private CreateMediaSession() {
+    private PlayAudio() {
     }
 
-    public CreateMediaSession(String sdp) {
+    public PlayAudio(String sdp, String audioUrl) {
         this.sdp = sdp;
+        this.audioUrl = audioUrl;
     }
 
     public String getSdp() {
         return sdp;
     }
 
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
     @Override
     public String toString() {
-        return "CreateMediaSession{" +
+        return "PlayAudio{" +
                 "sdp='" + sdp + '\'' +
+                ", audioUrl='" + audioUrl + '\'' +
                 '}';
     }
 

@@ -20,7 +20,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
-import tech.ivoice.media.cmd.CreateMediaSession;
+import tech.ivoice.media.cmd.PlayAudio;
 
 import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
@@ -49,15 +49,15 @@ public class Mediaserver extends AbstractVerticle {
                             MessageConsumer<String> consumer = vertx.eventBus()
                                     .consumer(CREATE_MEDIA_SESSION_CMD_ADDRESS);
                             consumer.handler(msg -> {
-                                CreateMediaSession request = Json.decodeValue(msg.body(), CreateMediaSession.class);
+                                PlayAudio request = Json.decodeValue(msg.body(), PlayAudio.class);
                                 String sdp = request.getSdp();
                                 String host = SDP_HOST_PATTERN.matcher(sdp)
                                         .results().findFirst().orElseThrow().group(1);
                                 int port = Integer.parseInt(SDP_PORT_PATTERN.matcher(sdp)
                                         .results().findFirst().orElseThrow().group(1));
-                                int localRtpPort = createMediaSession(host, port);
+                                int localRtpPort = createMediaSession(host, port, request.getAudioUrl());
 
-                                CreateMediaSession.Result result = CreateMediaSession.Result.success(localRtpPort);
+                                PlayAudio.Result result = PlayAudio.Result.success(localRtpPort);
                                 msg.reply(Json.encode(result));
                             });
                         }
@@ -67,7 +67,7 @@ public class Mediaserver extends AbstractVerticle {
     /**
      * @return local rtp port
      */
-    public int createMediaSession(String remoteHost, int remoteRtpPort) {
+    public int createMediaSession(String remoteHost, int remoteRtpPort, String audioUrl) {
         try {
             AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
             Formats fmts = new Formats();
@@ -103,7 +103,7 @@ public class Mediaserver extends AbstractVerticle {
 //            Sine audioProducer = new Sine(mediaScheduler);
 //            audioProducer.setFrequency(100);
             AudioPlayerImpl audioProducer = new AudioPlayerImpl("player", mediaScheduler);
-            audioProducer.setURL("http://audios.ivoice.online/tests/goodbye.wav");
+            audioProducer.setURL(audioUrl);
 
             RtpStatistics statistics = new RtpStatistics(rtpClock);
 

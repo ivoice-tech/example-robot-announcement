@@ -8,7 +8,7 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.eventbus.Message;
 import tech.ivoice.media.Mediaserver;
-import tech.ivoice.media.cmd.CreateMediaSession;
+import tech.ivoice.media.cmd.PlayAudio;
 import tech.ivoice.sip.vertx.AbstractSipUserAgent;
 import tech.ivoice.sip.vertx.SipVerticleConfig;
 
@@ -46,13 +46,14 @@ public class Robot extends AbstractSipUserAgent<Void> {
         sendResponse(trying);
 
         try {
-            CreateMediaSession createMediaSession = new CreateMediaSession(invite.getMessageContent());
+            PlayAudio playAudio = new PlayAudio(invite.getMessageContent(),
+                    "http://audios.ivoice.online/tests/goodbye.wav");
             Uni<Message<String>> request = vertx.eventBus()
-                    .request(Mediaserver.CREATE_MEDIA_SESSION_CMD_ADDRESS, Json.encode(createMediaSession));
+                    .request(Mediaserver.CREATE_MEDIA_SESSION_CMD_ADDRESS, Json.encode(playAudio));
             request.subscribe()
                     .with(reply -> {
-                        CreateMediaSession.Result result = Json.decodeValue(reply.body(),
-                                CreateMediaSession.Result.class);
+                        PlayAudio.Result result = Json.decodeValue(reply.body(),
+                                PlayAudio.Result.class);
                         if (!result.isSuccess()) {
                             log.error(result.getError());
                             throw new IllegalStateException(result.getError());
