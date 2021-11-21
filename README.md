@@ -6,7 +6,7 @@ Robot accepting incoming call and saying phrase.
 
 ## How to build
 
-The challenge is to build [Restcomm media-core Spinoco fork (active)](https://github.com/Spinoco/mediaserver) libs for
+The challenge is to build [Restcomm media-core(Spinoco fork)](https://github.com/Spinoco/mediaserver) libs for
 mediaserver. You need to install (mvn install) modules locally:
 
 - org.mobicents.media.io:rtp
