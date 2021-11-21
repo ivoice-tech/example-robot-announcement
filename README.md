@@ -6,13 +6,13 @@ Robot accepting incoming call and saying phrase.
 
 ## How to build
 
-The challenge is to build [Restcomm media-core(Spinoco fork)](https://github.com/Spinoco/mediaserver) libs for
-mediaserver. You need to install (mvn install) modules locally:
+1. Build and install (mvn install) [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-sip-server)
+2. Build and install 2 [media-core](https://github.com/Spinoco/mediaserver) modules:
 
 - org.mobicents.media.io:rtp
 - org.mobicents.media.resources:player
 
-We'll write instructions or include libs in nearest future :)
+We'll write instructions or include libs for media-core in the nearest future :)
 
 ## How to use
 
@@ -27,22 +27,22 @@ This project contains 2 modules:
 
 Implemented on [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-sip-server).
 
-Call agent is term from MGCP protocol - call control "intelligence", it commands media gateway (mediaserver).
+Robot is call agent (term from [MGCP](https://en.wikipedia.org/wiki/Media_Gateway_Control_Protocol)), containing
+intelligence of the system. Robot functions:
 
-Robot functions:
-
-- accepts SIP call
-- commands mediaserver to play notification
+- accept SIP call
+- command mediaserver to play notification
 
 2. Mediaserver
 
-Low-level mediaserver on Restcomm mediaserver components:
+Low-level mediaserver based on Restcomm mediaserver components:
 
-- waits for Robot command with audio URL
-- plays audio in RTP channel
+- wait for Robot command with audio URL
+- establish RTP connection with softphone
+- transmit audio to RTP channel
 
 # References
 
-- [MGCP wikipedia](https://en.wikipedia.org/wiki/Media_Gateway_Control_Protocol)
+- [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-sip-server)
 - [Restcomm media-core Spinoco fork (active)](https://github.com/Spinoco/mediaserver)
 - [media-core examples](https://github.com/achernetsov/media-core-examples)
