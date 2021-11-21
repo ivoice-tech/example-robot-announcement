@@ -13,7 +13,9 @@ import tech.ivoice.sip.vertx.AbstractSipUserAgent;
 import tech.ivoice.sip.vertx.SipVerticleConfig;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
+import java.time.Instant;
+
+import static java.lang.String.format;
 
 /**
  * Listens for incoming call on: robot@127.0.0.1:5081
@@ -59,18 +61,44 @@ public class Robot extends AbstractSipUserAgent<Void> {
                             throw new IllegalStateException(result.getError());
                         }
                         log.info(result);
-
-                        List<String> sdpAttributes = List.of(
-                                "a=rtpmap:8 PCMA/8000",
-                                "a=ptime:20"
-                        );
-                        SIPResponse ok = createOkWithSdp(callId, result.getRtpPort(), sdpAttributes);
+                        String sdp = createSdp(config.getHost(), result.getRtpPort());
+                        SIPResponse ok = createOk(callId, sdp);
                         sendResponse(ok);
 
                     });
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private static String createSdp(String host, int rtpPort) {
+        // origin https://datatracker.ietf.org/doc/html/rfc4566#section-5.2
+        String username = "robot";
+        long sessId = Instant.now().getEpochSecond();
+        long sessVer = Instant.now().getEpochSecond();
+        String netType = "IN";
+        String addrType = "IP4";
+        String origin = format("o=%s %s %s %s %s %s", username, sessId, sessVer, netType, addrType, host);
+
+        // connection data https://datatracker.ietf.org/doc/html/rfc4566#section-5.7
+        String connectionData = format("c=%s %s %s", netType, addrType, host);
+
+        // https://datatracker.ietf.org/doc/html/rfc4566#section-5.14  m=<media> <port> <proto> <fmt>
+        int pcmaFmtId = 8;
+        String pcmaRtpmap = format("a=rtpmap:%d PCMA/8000", pcmaFmtId);
+        String mediaDescriptions = format("m=audio %s RTP/AVP %d", rtpPort, pcmaFmtId);
+
+        return String.join(
+                "\r\n",
+                "v=0",
+                origin,
+                "s=-",
+                connectionData,
+                "t=0 0",
+                mediaDescriptions,
+                pcmaRtpmap,
+                "a=ptime:20"
+        );
     }
 
     @Override
