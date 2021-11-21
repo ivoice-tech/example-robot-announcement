@@ -44,5 +44,5 @@ Low-level mediaserver based on Restcomm mediaserver components:
 # References
 
 - [Ivoice robot-sip-server](https://github.com/ivoice-tech/robot-sip-server)
-- [Restcomm media-core Spinoco fork (active)](https://github.com/Spinoco/mediaserver)
+- [Restcomm media-core Spinoco fork](https://github.com/Spinoco/mediaserver)
 - [media-core examples](https://github.com/achernetsov/media-core-examples)
