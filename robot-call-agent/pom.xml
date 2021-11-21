@@ -22,6 +22,18 @@
             <artifactId>robot-sip-ua</artifactId>
             <version>${ivoice.robot.sip.version}</version>
         </dependency>
+        <dependency>
+            <groupId>tech.ivoice</groupId>
+            <artifactId>mediaserver</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+
+        <!-- events serialization -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.0</version>
+        </dependency>
 
         <!-- logging -->
         <dependency>

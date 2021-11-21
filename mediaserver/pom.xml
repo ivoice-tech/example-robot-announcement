@@ -12,10 +12,29 @@
     <artifactId>mediaserver</artifactId>
 
     <properties>
+        <vertx.version>4.2.1</vertx.version>
         <media.core.version>5.0.0-SNAPSHOT</media.core.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-stack-depchain</artifactId>
+                <version>${vertx.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>io.smallrye.reactive</groupId>
+            <artifactId>smallrye-mutiny-vertx-core</artifactId>
+            <version>2.15.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.mobicents.media.io</groupId>
             <artifactId>rtp</artifactId>
